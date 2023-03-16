@@ -1,0 +1,153 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap');
+
+*,
+*:after,
+*:before{
+    padding:0;
+    margin:0;
+    /* font-family: 'Poppins', sans-serif; */
+    font-family: 'Roboto Slab', serif;
+    font-size: 16px;
+    
+}
+
+:root{
+    --background-color:#DEE1DD;
+    --input-color:#2F575D;
+    --item-color:#28363D;
+}
+
+body{
+    background-color: var(--background-color);
+}
+
+
+
+
+
+
+
+
+
+
+form{
+    /* border:1px solid; */
+    width:fit-content;
+    margin:auto;
+    margin-top:130px;
+}
+
+form input{
+    display: block;
+    width:800px;
+    padding:18px 15px;
+    margin-bottom: 20px;
+    
+    background: var(--input-color);
+    color:white;
+    box-shadow: 3px 3px 5px rgba(40, 54, 61, 0.5);
+    border-radius: 5px;
+    border:0;
+}
+
+form button{
+    display:block;
+    padding:15px 60px;
+    border-radius: 8px;
+    border:0;
+    color:white;
+    background: var(--input-color);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+section{
+    /* border: 1px solid; */
+    width:fit-content;
+    margin:150px auto;
+}
+
+section h3{
+    font-size: 20px;
+}
+
+.list{
+    display:flex;
+    gap:10px;
+    flex-direction: column;
+}
+
+.item{
+    width:962px;
+    background: var(--item-color);
+    border-radius:5px;
+    padding:20px;
+    display:flex;
+    align-items: center;
+    color:white;
+    filter: drop-shadow(10px 5px 61px rgba(0, 0, 0, 0.25));
+    max-height: 60px;
+    overflow:hidden;
+    transition:.5s ease;
+    animation: 5s ease;
+}
+
+/* .item:hover{
+    max-height:fit-content;
+} */
+
+.item-info{
+    width: 100%;
+    /* border:1px solid red; */
+    display:flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.item-info span{
+    /* border:1px solid; */
+    padding:10px;
+    
+}
+
+.options{
+    /* border:1px solid; */
+    display:flex;
+    justify-content: space-evenly;
+    gap:20px;
+}
+
+.options div:hover{
+    cursor:pointer;
+}
+
+.item-info:hover{
+    cursor:pointer;
+}
+
+.item-info{  
+    transition:.5s ease;
+}
+
+.checked{
+    opacity:0.5;
+}
+
+.checked::after{
+    position:absolute;
+    content: "";
+    width:85%;
+    height:3px;
+    background:var(--background-color);
+    left:50px;
+}
