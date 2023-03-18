@@ -1,84 +1,100 @@
-const html = document
-const toDoSection = html.querySelector("#to-do-section")
+const html = document,
+    toDoSection = html.querySelector("#to-do-section");
 
 window.onload = renderList()
 
 const body = html.body,
     form = html.querySelector("form"),
     input = html.querySelector("#to-do-input"),
-    // list = html.querySelector(".list"),
-    item = html.querySelectorAll(".item"),
+    list = html.querySelector(".list"),
     itemInfo = html.querySelectorAll(".item-info"),
-    checkbox = html.querySelectorAll("#checkbox");
+    editBtn = html.querySelectorAll("#edit"),
+    deleteBtn = html.querySelectorAll("#delete");
 
+// Calls for editItem passing the item index
+editBtn.forEach(element=>element.addEventListener("click", ()=>{
+    editItem(Array.prototype.slice.call(editBtn).indexOf(element))
+}))
 
-
-// itemInfo.addEventListener("click",()=>{
-//     if(item.classList.contains("active")){
-//         item.classList.remove("active")
-//     } else{
-//         item.classList.add("active")
-//     }
-// })
-
-
-// savingto local Storage
-// let str = element.querySelector("span").textContent
-//         let index = Array.prototype.slice.call(itemInfo).indexOf(element)
-//         saveToLocalStorage(str, index)
-
-
-form.addEventListener("submit",()=>{
-    let str = input.value
-    // let index = Array.prototype.slice.call(itemInfo).indexOf(element)
-    saveToLocalStorage(str, false)
+// Calls for deleteItem passing the item index
+deleteBtn.forEach(element=>{
+    element.addEventListener("click",()=>deleteItem(Array.prototype.slice.call(deleteBtn).indexOf(element)))
 })
 
+let edit = false,
+    editIndex = 0;
+
+function editItem(index){
+    const list = getLocalStorage()
+    input.value = list[index].str;
+    edit = true
+    editIndex = index
+}
+
+function deleteItem(index){
+    const list = getLocalStorage()
+    list.splice(index, 1)
+    localStorage.setItem("todo", JSON.stringify(list))
+    window.location.reload()
+}
+
+form.addEventListener("submit",()=>saveToLocalStorage(input.value, false))
+
+// Calls for ischecked passing element and index
 itemInfo.forEach(element=>{
     element.addEventListener("click",()=>{
-        let str = element.querySelector("span").textContent
-        let index = Array.prototype.slice.call(itemInfo).indexOf(element)
-        isChecked(element, index)
+        isChecked(element, Array.prototype.slice.call(itemInfo).indexOf(element))
+        window.location.reload()
     })
 })
 
 function isChecked(element, index){
-    let list = getLocalStorage()
-
+    const list = getLocalStorage()
 
     if (list[index].isChecked){
-        list[index].isChecked = false
         element.querySelector("img").src = "./images/checkbox.svg"
         element.classList.remove("checked")
+        changeLocalStorage(index, false)
     } else{
-        list[index].isChecked = true
         element.querySelector("img").src = "./images/checkbox-checked.svg"
         element.classList.add("checked")
+        changeLocalStorage(index, true)
     }
-
-    // let a = []
-
-    // list.filter(value=>value.isChecked===false).forEach(element=>{
-    //     a.unshift(element)
-    // })
-    
-    // list.filter(value=>value.isChecked).forEach(element=>{
-    //     a.push(element)
-    // })
-
-    // localStorage.setItem("todo", JSON.stringify(a))
-
-    localStorage.setItem("todo", JSON.stringify(list))
-
-    console.log(a);
 }
 
 function saveToLocalStorage(str, boolean) {
-
-    let list = getLocalStorage()
-    list.push({ str:str, isChecked:boolean })
-
+    const list = getLocalStorage()
+    if (edit){
+        const itemToEdit = list[editIndex]
+        itemToEdit.str = str.charAt(0).toUpperCase() + str.slice(1)
+        list.splice(editIndex, 1)
+        list.splice(editIndex, 0, itemToEdit)
+    }else{
+        list.unshift({ str:str.charAt(0).toUpperCase() + str.slice(1), isChecked:boolean })
+    }
     localStorage.setItem("todo", JSON.stringify(list))
+}
+
+function changeLocalStorage(itemIndex, boolean){
+    const todoList = getLocalStorage()
+    if (boolean){
+        let curItem = todoList[itemIndex]
+        curItem.isChecked = true
+        todoList.splice(itemIndex, 1)
+
+        const index = todoList.indexOf(todoList.find(value=>value.isChecked))
+        if (index === -1){
+            todoList.push(curItem)
+        } else{
+            todoList.splice(index, 0, curItem)
+        }
+    } else{
+        let curItem = todoList[itemIndex]
+        curItem.isChecked = false
+        todoList.splice(itemIndex, 1)
+        todoList.splice(0, 0, curItem)
+    }
+    localStorage.setItem("todo", JSON.stringify(todoList))
 }
 
 function getLocalStorage(){
@@ -90,31 +106,7 @@ function getLocalStorage(){
 }
 
 function renderList(){
-    // Only renders the list if the localStorage has some value
-    let todoList = []
-
-    getLocalStorage().forEach(element=>{
-        todoList.push(element)
-    })
-
-    let a = []
-
-    todoList.filter(value=>value.isChecked===false).forEach(element=>{
-        a.push(element)
-    })
-    
-    todoList.filter(value=>value.isChecked).forEach(element=>{
-        a.push(element)
-    })
-
-    // console.log(todoList.filter(value=>value.isChecked));
-
-    // for (let i = 0; i<todoList.length; i++){
-    //     let a = 0;
-    //     if (todoList[i].isChecked){
-
-    //     }
-    // }
+    const todoList = getLocalStorage()
 
     if (todoList.length > 0){
         // Create the heading element
@@ -123,14 +115,15 @@ function renderList(){
         toDoSection.appendChild(heading);
 
         // Create the container div for the to-do list
-        const listContainer = document.createElement('div');
+        const listContainer = document.createElement('ul');
         listContainer.classList.add('list');
 
+        // Rendering each element on the todoList
         todoList.forEach(element=>{
             const { str, isChecked } = element
 
             // Create the item div
-            const itemDiv = document.createElement('div');
+            const itemDiv = document.createElement('li');
             itemDiv.classList.add('item');
     
             // Create the item-info div
@@ -163,6 +156,7 @@ function renderList(){
             // Create the pencil icon div
             const pencilIconDiv = document.createElement('div');
             const pencilIconImg = document.createElement('img');
+            pencilIconDiv.id = "edit"
             pencilIconImg.src = './images/pencil.svg';
             pencilIconImg.alt = 'Pencil icon';
             pencilIconDiv.appendChild(pencilIconImg);
@@ -170,6 +164,7 @@ function renderList(){
             // Create the trash icon div
             const trashIconDiv = document.createElement('div');
             const trashIconImg = document.createElement('img');
+            trashIconDiv.id = "delete"
             trashIconImg.src = './images/trash.svg';
             trashIconImg.alt = 'Trash icon';
             trashIconDiv.appendChild(trashIconImg);
@@ -190,39 +185,3 @@ function renderList(){
         })
     }
 }
-
-
-let test = [{str:"oi", isChecked:false},
-{str:"oiiiiiii", isChecked:true},
-{str:"tchau", isChecked:false},
-{str:"oi", isChecked:true}]
-
-// console.log(test.filter(
-//     value => value.isChecked
-// ));
-
-console.log(test);
-
-let a = []
-
-console.log(a);
-
-// test.splice(test.length, 1, test.filter(value=>value.isChecked))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// TRYING TO WORK WHEN ONE IS SELECTED, IT MUST GO TO THE END OF THE LIST
-// IF UNSELECTED MUST GO TO THE TOP
-
-// TRYING TO DO THAT IN THE ISCHECKED FUNCTION
